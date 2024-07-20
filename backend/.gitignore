@@ -2,4 +2,5 @@
 
 .mp4
 
-video_index
+backend/video_index/bin
+backend/video_index/pyvenv.cfg
