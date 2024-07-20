@@ -2,6 +2,6 @@
 
 .mp4
 
-backend/venv/
+backend/video_index/
 __pycache__/
 *.pyc
