@@ -16,30 +16,6 @@ Before you begin, ensure you have met the following requirements:
 - Python 3.10+
 - pip (Python package manager)
 
-## Project Structure
-
-Video-query/
-├── backend/
-│ ├── app.py
-│ ├── main.py
-│ ├── prompt.txt
-│ ├── requirements.txt
-│ ├── test_backend.py
-│ ├── clips/
-│ ├── uploads/
-│ └── video_index/
-├── frontend/
-│ ├── node_modules/
-│ ├── package-lock.json
-│ ├── package.json
-│ ├── postcss.config.js
-│ ├── public/
-│ ├── README.md
-│ ├── src/
-│ └── tailwind.config.js
-└── .gitignore
-
-
 ## Installation
 
 1. Clone this repository:
