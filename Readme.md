@@ -13,27 +13,63 @@ This Python script allows you to download YouTube videos, process them using Goo
 
 Before you begin, ensure you have met the following requirements:
 
-- Python 3.7+
+- Python 3.10+
 - pip (Python package manager)
 
-## Ongoing Development
+## Project Structure
 
-Currently working on integrating a frontend and backend to enhance UX of this project.
+Video-query/
+├── backend/
+│ ├── app.py
+│ ├── main.py
+│ ├── prompt.txt
+│ ├── requirements.txt
+│ ├── test_backend.py
+│ ├── clips/
+│ ├── uploads/
+│ └── video_index/
+├── frontend/
+│ ├── node_modules/
+│ ├── package-lock.json
+│ ├── package.json
+│ ├── postcss.config.js
+│ ├── public/
+│ ├── README.md
+│ ├── src/
+│ └── tailwind.config.js
+└── .gitignore
+
 
 ## Installation
 
 1. Clone this repository:
    ```
-   git clone https://github.com/Druvith/Video_index.git
-   cd Video_index
+   git clone https://github.com/Druvith/video-query.git
+   cd video-query
    ```
 
-2. Install the required dependencies:
+2. Navigate to the backend directory:
    ```
-   pip install google-generativeai yt-dlp openai pinecone-client==4.1.0 pinecone-notebooks==0.1.1 python-dotenv
+   cd backend
    ```
 
-3. Set up your environment variables:
+3. Create a virtual environment:
+   ```
+   python -m venv venv
+   ```
+
+4. Activate the virtual environment:
+   - On macOS/Linux
+   ```
+   source venv/bin/activate
+   ```
+
+   - On windows:
+   ```
+   venv\Scripts\activate
+   ```
+
+5. Set up your environment variables:
    Create a `.env` file in the project root and add your API keys:
    ```
    GOOGLE_API_KEY=your_google_api_key
@@ -41,18 +77,46 @@ Currently working on integrating a frontend and backend to enhance UX of this pr
    PINECONE_API_KEY=your_pinecone_api_key
    ```
 
-## Usage
+6. Install the required packages:
+   ```
+   pip install -r requirements.txt
+   ```
 
-Run the script:
+7. Run the backend server:
+   ```
+   python app.py
+   ```
 
-```
-python main.py
-```
+The backend server should now be running at `http://127.0.0.1:5000`.
+
+### Prerequisites
+
+- Node.js (includes npm)
+
+### Installation
+
+1. **Navigate to the frontend directory**:
+   ```sh
+   cd frontend
+   ```
+
+2. **Install the dependencies**:
+   ```sh
+   npm install
+   ```
+
+3. **Start the frontend development server**:
+   ```sh
+   npm start
+   ```
+
+The frontend server should now be running at `http://localhost:3000`.
 
 Follow the prompts to:
 1. Enter a YouTube video URL
 2. Wait for the video to be processed and the responses from the model to be indexed
-3. Enter queries to search the video content
+3. Enter queries to search the video segment
+4. Use play clip if you want play or download the video segment
 
 ## How it works
 
@@ -61,6 +125,15 @@ Follow the prompts to:
 3. The descriptions are converted into embeddings using openai's ["text-embedding-3-small"](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings) model and stored in Pinecone's Index.
 4. User queries are converted to embeddings and used to search (using cosine similarity) the Pinecone index
 5. The most relevant video segments are returned based on the query
+
+## Additional Information
+
+### Backend API Endpoints
+
+- **Process Video**: `POST /process` 
+- **Query Video**: `POST /query`
+- **Create Clip**: `POST /clip`
+- **Delete Index**: `POST /delete-index`
 
 ## Contributing
 
@@ -76,4 +149,6 @@ This project is licensed under the MIT License.
 - OpenAI
 - Pinecone
 - yt-dlp
+- React
+- Axios
 
