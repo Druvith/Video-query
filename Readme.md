@@ -36,11 +36,13 @@ Before you begin, ensure you have met the following requirements:
 
 4. Activate the virtual environment:
    - On macOS/Linux
+
    ```
    source venv/bin/activate
    ```
 
    - On windows:
+   
    ```
    venv\Scripts\activate
    ```

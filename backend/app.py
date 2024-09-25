@@ -7,7 +7,6 @@ import yt_dlp
 from moviepy.editor import VideoFileClip
 import time
 
-
 index_name = "docs-quickstart-notebook"
 # Import your existing functions
 from main import process_and_index_video, query_video_segments, pc, spec
@@ -53,23 +52,66 @@ def process_video():
             name=index_name,
             dimension=1536,
             metric="cosine",
-            spec = spec
+            spec=spec
         )
         while not pc.describe_index(index_name).status["ready"]:
             time.sleep(1)
 
-    #download the video
+    # Download the video
     try:
         filename = download_video(url)
     except Exception as e:
         return jsonify({'error': f'Failed to download the video: {str(e)}'})
-    
+
     success = process_and_index_video(filename)
 
     if success:
-       return jsonify({'message': 'Video processed and indexed successfully', 'filename': filename}), 200
+        return jsonify({'message': 'Video processed and indexed successfully', 'filename': filename}), 200
     else:
-       return jsonify({'error': 'Failed to process and index the video'}), 500
+        return jsonify({'error': 'Failed to process and index the video'}), 500
+
+# *** New Endpoint for Uploading Local Video Files ***
+@app.route('/upload', methods=['POST'])
+def upload_video():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part in the request'}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        try:
+            file.save(file_path)
+            app.logger.debug(f"File saved to {file_path}")
+
+            # Ensure index exists
+            if index_name not in pc.list_indexes().names():
+                pc.create_index(
+                    name=index_name,
+                    dimension=1536,
+                    metric="cosine",
+                    spec=spec
+                )
+                while not pc.describe_index(index_name).status["ready"]:
+                    time.sleep(1)
+
+            # Process and index the uploaded video
+            success = process_and_index_video(file_path)
+
+            if success:
+                return jsonify({'message': 'Video uploaded, processed, and indexed successfully', 'filename': file_path}), 200
+            else:
+                return jsonify({'error': 'Failed to process and index the video'}), 500
+        except Exception as e:
+            app.logger.error(f"Error uploading file: {str(e)}")
+            return jsonify({'error': f'Failed to upload and process the video: {str(e)}'}), 500
+    else:
+        return jsonify({'error': 'File type not allowed'}), 400
+# *** End of New Endpoint ***
 
 @app.route('/query', methods=['POST'])
 def query_video():
@@ -118,7 +160,7 @@ def delete_index():
     try:
         if index_name not in pc.list_indexes().names():
             return jsonify({'message': 'Index does not exist'}), 404
-        
+
         pc.delete_index(index_name)
         return jsonify({'message': 'Index deleted successfully'}), 200
     except Exception as e:

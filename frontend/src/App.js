@@ -12,6 +12,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentClip, setCurrentClip] = useState(null);
   const [filename, setFilename] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null); // *** New State ***
   const videoRef = useRef(null);
 
   const handleProcess = async () => {
@@ -24,6 +25,33 @@ const App = () => {
       console.log("Filename set:", data.filename);  // Add this log
     } catch (error) {
       setMessage('Error processing video');
+    }
+    setIsLoading(false);
+  };
+
+  const handleUpload = async () => { // *** New Function ***
+    if (!selectedFile) {
+      setMessage('No file selected');
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage('');
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setMessage(response.data.message || response.data.error);
+      setFilename(response.data.filename);
+      console.log("Uploaded filename set:", response.data.filename);
+    } catch (error) {
+      console.error("Error uploading video:", error.response ? error.response.data : error.message);
+      setMessage(error.response ? error.response.data.error : 'Error uploading video');
     }
     setIsLoading(false);
   };
@@ -68,10 +96,15 @@ const App = () => {
     setIsLoading(false);
   };
 
+  const handleFileChange = (e) => { // *** New Function ***
+    setSelectedFile(e.target.files[0]);
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Video Processing and Querying</h1>
       
+      {/* *** Existing URL Processing Section *** */}
       <div className="mb-4">
         <input
           type="text"
@@ -95,6 +128,24 @@ const App = () => {
           Delete Index
         </button>
       </div>
+
+      {/* *** New Upload Section *** */}
+      <div className="mb-4">
+        <input
+          type="file"
+          accept="video/*"
+          onChange={handleFileChange}
+          className="w-full p-2 border rounded mb-2"
+        />
+        <button 
+          onClick={handleUpload} 
+          disabled={isLoading || !selectedFile}
+          className="bg-indigo-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
+        >
+          Upload Video
+        </button>
+      </div>
+      {/* *** End of Upload Section *** */}
 
       {message && <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500">{message}</div>}
 
