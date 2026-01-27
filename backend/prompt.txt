@@ -1,4 +1,4 @@
-prompt = """ # Structured Video Analysis Prompt
+# Structured Video Analysis Prompt
 
 Analyze the given video and provide a structured description in the following format:
 
@@ -34,4 +34,4 @@ Please follow these guidelines:
 
 5. Make sure all segments are chronological and cover the entire duration of the video.
 
-Remember to be as detailed and precise as possible in your descriptions while maintaining the specified structure. """
+Remember to be as detailed and precise as possible in your descriptions while maintaining the specified structure.

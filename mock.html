@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineSearch AI - Concept</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#09090b',
+                        surface: '#18181b',
+                        primary: '#3b82f6', // Blue-500
+                        accent: '#8b5cf6', // Violet-500
+                        text: '#e4e4e7',
+                        muted: '#a1a1aa'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-text h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-surface/50 backdrop-blur-md z-50">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">V</div>
+            <span class="font-semibold text-lg tracking-tight">VideoQuery <span class="text-xs font-normal text-primary bg-primary/10 px-2 py-0.5 rounded-full ml-1">AI</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="text-sm text-muted hover:text-white transition">History</button>
+            <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">DG</div>
+        </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Left Panel: Video & Input (60%) -->
+        <div class="flex-[3] flex flex-col p-6 gap-6 overflow-y-auto">
+            
+            <!-- Video Player Placeholder -->
+            <div class="aspect-video w-full bg-black rounded-xl border border-white/10 relative overflow-hidden group shadow-2xl">
+                <!-- Abstract Player UI -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center pl-1 group-hover:scale-110 transition duration-300 cursor-pointer">
+                        <svg class="w-8 h-8 text-white fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent flex items-end px-4 pb-4 opacity-0 group-hover:opacity-100 transition">
+                    <div class="w-full h-1 bg-white/30 rounded-full overflow-hidden">
+                        <div class="w-1/3 h-full bg-primary"></div>
+                    </div>
+                </div>
+                <!-- Tag -->
+                <div class="absolute top-4 right-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full text-xs font-medium border border-white/10">
+                    SpaceX Launch.mp4
+                </div>
+            </div>
+
+            <!-- Context / Metadata -->
+            <div class="flex flex-col gap-2">
+                <h1 class="text-2xl font-semibold">SpaceX Falcon Heavy Test Flight</h1>
+                <div class="flex gap-3 text-sm text-muted">
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 02:14</span>
+                    <span class="w-px h-4 bg-white/10"></span>
+                    <span>Processed 2 mins ago</span>
+                </div>
+                <p class="text-muted/80 text-sm leading-relaxed max-w-3xl mt-2">
+                    Highlights from the maiden flight of Falcon Heavy, featuring the simultaneous booster landing and the deployment of Starman.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Right Panel: Search & Results (40%) -->
+        <div class="flex-[2] bg-surface/30 border-l border-white/10 flex flex-col relative">
+            
+            <!-- Search Bar (Sticky Top) -->
+            <div class="p-4 border-b border-white/10 bg-surface/50 backdrop-blur-md">
+                <div class="relative">
+                    <input type="text" placeholder="Ask about the video..." 
+                           class="w-full bg-black/40 border border-white/10 text-white text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition shadow-inner"
+                           value="Show me the boosters landing">
+                    <svg class="w-5 h-5 text-muted absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <div class="absolute right-3 top-3 text-[10px] text-muted border border-white/10 px-1.5 py-0.5 rounded">⏎</div>
+                </div>
+            </div>
+
+            <!-- Results Scroll Area -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                
+                <!-- Result Item 1 (Active) -->
+                <div class="group relative bg-white/5 hover:bg-white/10 border border-primary/30 rounded-xl p-3 transition cursor-pointer flex gap-3">
+                    <!-- Thumbnail Mockup -->
+                    <div class="w-24 h-16 bg-black/50 rounded-lg flex-shrink-0 border border-white/5 relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center text-xs text-muted">Preview</div>
+                        <div class="absolute bottom-1 right-1 bg-black/80 px-1 rounded text-[10px]">01:33</div>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-start">
+                            <span class="text-primary text-xs font-bold uppercase tracking-wider">Top Match (92%)</span>
+                        </div>
+                        <p class="text-sm text-gray-200 line-clamp-2">Two side boosters are seen performing a controlled, simultaneous landing back on their designated pads.</p>
+                        <div class="flex gap-2 mt-1">
+                            <span class="text-[10px] bg-white/5 px-2 py-0.5 rounded text-muted group-hover:text-white transition">Booster</span>
+                            <span class="text-[10px] bg-white/5 px-2 py-0.5 rounded text-muted group-hover:text-white transition">Landing</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Play Overlay (on hover) -->
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition">
+                         <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Result Item 2 -->
+                <div class="group relative bg-transparent hover:bg-white/5 border border-transparent hover:border-white/10 rounded-xl p-3 transition cursor-pointer flex gap-3 opacity-60 hover:opacity-100">
+                    <div class="w-24 h-16 bg-black/30 rounded-lg flex-shrink-0 border border-white/5 relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center text-xs text-muted">Preview</div>
+                        <div class="absolute bottom-1 right-1 bg-black/80 px-1 rounded text-[10px]">00:32</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p class="text-sm text-gray-300 line-clamp-2">Rocket standing on the launchpad against a twilight sky, followed by ignition.</p>
+                        <div class="flex gap-2 mt-1">
+                            <span class="text-[10px] bg-white/5 px-2 py-0.5 rounded text-muted">Launch</span>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Result Item 3 -->
+                 <div class="group relative bg-transparent hover:bg-white/5 border border-transparent hover:border-white/10 rounded-xl p-3 transition cursor-pointer flex gap-3 opacity-60 hover:opacity-100">
+                    <div class="w-24 h-16 bg-black/30 rounded-lg flex-shrink-0 border border-white/5 relative overflow-hidden">
+                         <div class="absolute inset-0 flex items-center justify-center text-xs text-muted">Preview</div>
+                        <div class="absolute bottom-1 right-1 bg-black/80 px-1 rounded text-[10px]">01:02</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p class="text-sm text-gray-300 line-clamp-2">Starman in the red Tesla Roadster orbiting Earth.</p>
+                        <div class="flex gap-2 mt-1">
+                            <span class="text-[10px] bg-white/5 px-2 py-0.5 rounded text-muted">Starman</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- AI Suggestion / Status -->
+            <div class="p-3 bg-surface/50 border-t border-white/10 text-xs text-center text-muted">
+                AI can make mistakes. Check timestamps.
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
