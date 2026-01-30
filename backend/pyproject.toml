@@ -1,0 +1,22 @@
+[project]
+name = "video-query-backend"
+version = "0.1.0"
+description = "Backend for Video Indexing and Querying Application"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask",
+    "flask-cors",
+    "python-dotenv",
+    "yt-dlp",
+    "google-genai",
+    "chromadb",
+    "sentence-transformers",
+    "pydantic",
+    "numpy",
+    "werkzeug"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

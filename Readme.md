@@ -1,132 +1,79 @@
-# Local Video Indexing Script
+# Video Query - AI-Powered Video Semantic Search
 
-This Python script allows you to download YouTube videos, process them using Google's Generative AI, and index the content for querying. It uses Pinecone for [vector storage](https://www.pinecone.io/learn/vector-database/) and retrieval using similarity search.
+A modern, local-first stack for indexing and searching video content using AI. This application allows you to process YouTube videos or local uploads, generate semantic descriptions using Gemini 2.0, and perform natural language queries to find and play specific moments.
 
-## Features
+## Key Features
 
-- Download YouTube videos
-- Get the video's contents using [Google's GenerativeAI](https://aistudio.google.com/app/apikey?_gl=1*1mpwc9q*_ga*MTE1NjYyNzg2MC4xNzE1NTk2Mzg0*_ga_P1DBVKWT6V*MTcyMDg1NTYyOC4xNS4xLjE3MjA4NTU2MzEuNTcuMC44NTgxMTA0MDM.) api (It's free!).
-- Index video content for [semantic search](https://www.pinecone.io/learn/vector-similarity/)
-- Query indexed content based on user input
+- **Semantic Video Search**: Find moments in videos using natural language (e.g., "Where does he talk about the iPhone launch?").
+- **Local-First Vector Store**: Uses **ChromaDB** for local vector storage—no external database subscription required.
+- **Local Embeddings**: Generates embeddings locally using `sentence-transformers` (`all-MiniLM-L6-v2`).
+- **Gemini Integration**: Utilizes the latest `google-genai` SDK for high-accuracy structured video analysis.
+- **Instant Clipping**: High-speed video clipping using **FFmpeg** with re-encoding for accurate seeking.
+- **Modern Tooling**: Powered by **uv** for ultra-fast Python dependency management.
 
 ## Prerequisites
 
-Before you begin, ensure you have met the following requirements:
+- **Python 3.10+**
+- **FFmpeg**: Required for video processing and clipping.
+- **uv**: Recommended for package management ([Install uv](https://github.com/astral-sh/uv)).
+- **Node.js & npm**: Required for the frontend.
+- **Google AI API Key**: Get one for free at [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-- Python 3.10+
-- pip (Python package manager)
+## Getting Started
 
-## Installation
+### 1. Clone the repository
+```bash
+git clone https://github.com/Druvith/video-query.git
+cd video-query
+```
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/Druvith/video-query.git
-   cd video-query
-   ```
+### 2. Backend Setup
+```bash
+cd backend
 
-2. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
+# Setup environment and install dependencies using uv
+chmod +x setup_env.sh
+./setup_env.sh
 
-3. Create a virtual environment:
-   ```
-   python -m venv venv
-   ```
+# Set your API Key
+echo "GOOGLE_API_KEY=your_key_here" > .env
 
-4. Activate the virtual environment:
-   - On macOS/Linux
+# Run the server
+source .venv/bin/activate
+python app.py
+```
+The backend will run at `http://localhost:5000`.
 
-   ```
-   source venv/bin/activate
-   ```
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+npm start
+```
+The frontend will run at `http://localhost:3000`.
 
-   - On windows:
-   
-   ```
-   venv\Scripts\activate
-   ```
+## How it Works
 
-5. Set up your environment variables:
-   Create a `.env` file in the project root and add your API keys:
-   ```
-   GOOGLE_API_KEY=your_google_api_key
-   OPENAI_API_KEY=your_openai_api_key
-   PINECONE_API_KEY=your_pinecone_api_key
-   ```
+1. **Ingestion**: Videos are downloaded via `yt-dlp` or uploaded manually.
+2. **Analysis**: Gemini 2.0 Flash analyzes the video and returns structured JSON containing segment timestamps and descriptions.
+3. **Indexing**: Descriptions are converted into 384-dimensional vectors using `all-MiniLM-L6-v2` and stored in a local **ChromaDB** instance (`backend/video_index_db`).
+4. **Search**: User queries are embedded locally and compared against the vector store using cosine similarity.
+5. **Playback**: When a result is selected, FFmpeg creates a precise clip on-the-fly for instant playback.
 
-6. Install the required packages:
-   ```
-   pip install -r requirements.txt
-   ```
+## Backend API
 
-7. Run the backend server:
-   ```
-   python app.py
-   ```
+- `POST /process`: Index a YouTube video by URL.
+- `POST /upload`: Index a local MP4 file.
+- `POST /query`: Search the index using natural language.
+- `POST /clip`: Generate a specific video segment.
+- `POST /delete-index`: Wipe the local vector store.
 
-The backend server should now be running at `http://127.0.0.1:5000`.
+## Tech Stack
 
-### Prerequisites
-
-- Node.js (includes npm)
-
-### Installation
-
-1. **Navigate to the frontend directory**:
-   ```sh
-   cd frontend
-   ```
-
-2. **Install the dependencies**:
-   ```sh
-   npm install
-   ```
-
-3. **Start the frontend development server**:
-   ```sh
-   npm start
-   ```
-
-The frontend server should now be running at `http://localhost:3000`.
-
-Follow the prompts to:
-1. Enter a YouTube video URL
-2. Wait for the video to be processed and the responses from the model to be indexed
-3. Enter queries to search the video segment
-4. Use play clip if you want play or download the video segment
-
-## How it works
-
-1. The script downloads the specified YouTube video
-2. Google's Generative AI processes the video and generates structured descriptions
-3. The descriptions are converted into embeddings using openai's ["text-embedding-3-small"](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings) model and stored in Pinecone's Index.
-4. User queries are converted to embeddings and used to search (using cosine similarity) the Pinecone index
-5. The most relevant video segments are returned based on the query
-
-## Additional Information
-
-### Backend API Endpoints
-
-- **Process Video**: `POST /process` 
-- **Query Video**: `POST /query`
-- **Create Clip**: `POST /clip`
-- **Delete Index**: `POST /delete-index`
-
-## Contributing
-
-Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes.
+- **Frontend**: React, Tailwind CSS.
+- **Backend**: Flask, `uv`.
+- **AI/ML**: `google-genai`, `sentence-transformers`, `chromadb`.
+- **Media**: `ffmpeg`, `yt-dlp`.
 
 ## License
-
-This project is licensed under the MIT License.
-
-## Acknowledgments
-
-- Google Generative AI
-- OpenAI
-- Pinecone
-- yt-dlp
-- React
-- Axios
-
+MIT
