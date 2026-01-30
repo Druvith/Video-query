@@ -113,14 +113,16 @@ const App = () => {
     setIsQuerying(false);
   };
 
-  const playClip = async (startTime, endTime) => {
-    if (!filename) {
+  const playClip = async (startTime, endTime, videoFilename) => {
+    const fileToUse = videoFilename || filename;
+
+    if (!fileToUse) {
       setMessage('No video file available for clipping.');
       return;
     }
 
     setMessage('');
-    const clipData = { filename, start_time: startTime, end_time: endTime };
+    const clipData = { filename: fileToUse, start_time: startTime, end_time: endTime };
     try {
       const response = await axios.post(`${API_BASE_URL}/clip`, clipData);
       if (response.data.error) {
@@ -326,7 +328,7 @@ const App = () => {
                   <p className="text-text-primary dark:text-white"><strong>Score:</strong> {result.score.toFixed(4)}</p>
                   {/* Play Clip Button Styled as an Icon Button */}
                   <button
-                    onClick={() => playClip(result.start_time, result.end_time)}
+                    onClick={() => playClip(result.start_time, result.end_time, result.filename)}
                     className="mt-2 bg-accent text-white p-2 rounded-full hover:bg-accent/90 transition-colors duration-200"
                     aria-label="Play Clip"
                   >
