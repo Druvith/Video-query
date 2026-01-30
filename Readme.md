@@ -1,6 +1,6 @@
 # Video Query - AI-Powered Video Semantic Search
 
-A modern, local-first stack for indexing and searching video content using AI. This application allows you to process YouTube videos or local uploads, generate semantic descriptions using Gemini 2.0, and perform natural language queries to find and play specific moments.
+A modern, local-first stack for indexing and searching video content using AI. This application allows you to process YouTube videos or local uploads, generate semantic descriptions using Gemini, and perform natural language queries to find and play specific moments.
 
 ## Key Features
 
@@ -55,7 +55,7 @@ The frontend will run at `http://localhost:3000`.
 ## How it Works
 
 1. **Ingestion**: Videos are downloaded via `yt-dlp` or uploaded manually.
-2. **Analysis**: Gemini 2.0 Flash analyzes the video and returns structured JSON containing segment timestamps and descriptions.
+2. **Analysis**: Gemini analyzes the video and returns structured JSON containing segment timestamps and descriptions.
 3. **Indexing**: Descriptions are converted into 384-dimensional vectors using `all-MiniLM-L6-v2` and stored in a local **ChromaDB** instance (`backend/video_index_db`).
 4. **Search**: User queries are embedded locally and compared against the vector store using cosine similarity.
 5. **Playback**: When a result is selected, FFmpeg creates a precise clip on-the-fly for instant playback.
