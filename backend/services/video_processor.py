@@ -15,9 +15,10 @@ class VideoProcessor:
         os.makedirs(self.clip_folder, exist_ok=True)
 
     def download_video(self, url):
-        """Downloads a video from YouTube."""
+        """Downloads a video from YouTube (Highest Quality)."""
         ydl_opts = {
             'outtmpl': os.path.join(self.upload_folder, '%(title)s.%(ext)s'),
+            # Download best quality
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'restrictfilenames': True,
             'quiet': True,
@@ -32,6 +33,37 @@ class VideoProcessor:
         except Exception as e:
             logger.error(f"Failed to download video: {e}")
             raise
+
+    def get_ai_proxy(self, input_path):
+        """Creates a low-res (480p) proxy of a video for faster AI upload."""
+        filename = os.path.basename(input_path)
+        proxy_filename = f"proxy_480p_{filename}"
+        proxy_path = os.path.join(self.upload_folder, proxy_filename)
+
+        if os.path.exists(proxy_path):
+            return proxy_path
+
+        logger.info(f"Creating low-res AI proxy: {proxy_path}")
+        # Downscale to 480p, reduce bitrate for fast upload
+        cmd = [
+            'ffmpeg',
+            '-y',
+            '-i', input_path,
+            '-vf', 'scale=-2:480',
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',
+            '-crf', '28',
+            '-c:a', 'aac',
+            '-ar', '22050', # Lower audio sample rate
+            proxy_path
+        ]
+        
+        try:
+            subprocess.run(cmd, capture_output=True, check=True)
+            return proxy_path
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Proxy generation failed: {e.stderr.decode()}")
+            return input_path # Fallback to original if proxy fails
 
     def create_clip(self, input_path, start_time, end_time):
         """Creates a video clip using ffmpeg."""

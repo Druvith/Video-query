@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import torch
 from google import genai
 from google.genai import types
 from sentence_transformers import SentenceTransformer
@@ -16,9 +17,29 @@ class AIEngine:
         
         self.client = genai.Client(api_key=self.google_api_key)
         
-        # Load local embedding model
-        logger.info(f"Loading embedding model: {EMBEDDING_MODEL_NAME}...")
-        self.embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        # Detect device: CUDA > MPS (Apple) > CPU
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+            
+        logger.info(f"Loading embedding model: {EMBEDDING_MODEL_NAME} on {device}...")
+        self.embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME, device=device)
+        
+        # Load prompt from file
+        self.prompt_path = os.path.join(os.path.dirname(__file__), 'prompts', 'video_analysis.txt')
+
+    def _get_prompt(self):
+        """Reads the analysis prompt from the text file."""
+        try:
+            with open(self.prompt_path, 'r') as f:
+                return f.read()
+        except Exception as e:
+            logger.error(f"Failed to read prompt file: {e}")
+            # Fallback to a basic prompt if file reading fails
+            return "Analyze this video and break it down into segments."
 
     def analyze_video(self, video_path):
         """Uploads video to Gemini and gets structured analysis."""
@@ -37,11 +58,7 @@ class AIEngine:
 
             # 3. Generate Content with Structured Output
             logger.info(f"Generating analysis using {GENAI_MODEL_NAME}...")
-            prompt = """
-            Analyze this video and break it down into chronological segments.
-            For each segment, provide the start/end times, a detailed description, and key elements.
-            Ensure segments cover the entire video duration.
-            """
+            prompt = self._get_prompt()
             
             response = self.client.models.generate_content(
                 model=GENAI_MODEL_NAME,
@@ -52,6 +69,12 @@ class AIEngine:
                 )
             )
             
+            # Clean up the file from Gemini after analysis to be tidy
+            try:
+                self.client.files.delete(name=file_ref.name)
+            except:
+                pass
+
             if not response.parsed:
                 logger.error("No parsed response received")
                 return []
@@ -63,5 +86,11 @@ class AIEngine:
             raise
 
     def get_embedding(self, text):
-        """Generates vector embedding for text."""
+        """Generates vector embedding for a single string."""
         return self.embedding_model.encode(text).tolist()
+
+    def get_embeddings(self, texts):
+        """Generates vector embeddings for a list of strings (batched)."""
+        logger.info(f"Generating embeddings for {len(texts)} segments...")
+        embeddings = self.embedding_model.encode(texts, batch_size=32, show_progress_bar=False)
+        return embeddings.tolist()

@@ -51,15 +51,27 @@ def process_video():
 
     url = data['url']
     try:
+        # 1. Download full-res
         filename = video_processor.download_video(url)
-        segments = ai_engine.analyze_video(filename)
+        
+        # 2. Create low-res proxy for AI
+        proxy_path = video_processor.get_ai_proxy(filename)
+        
+        # 3. Analyze using proxy (much faster upload)
+        segments = ai_engine.analyze_video(proxy_path)
         if not segments:
              return jsonify({'error': 'AI analysis yielded no segments'}), 500
 
+        # 4. Batch generate embeddings
         descriptions = [seg.description for seg in segments]
-        embeddings = [ai_engine.get_embedding(desc) for desc in descriptions]
+        embeddings = ai_engine.get_embeddings(descriptions)
 
+        # 5. Index using the original high-res filename for clipping
         storage_service.add_segments(segments, embeddings, filename)
+
+        # Cleanup proxy
+        if proxy_path != filename and os.path.exists(proxy_path):
+            os.remove(proxy_path)
 
         return jsonify({'message': 'Video processed and indexed successfully', 'filename': filename}), 200
 
@@ -85,11 +97,18 @@ def upload_video():
         file.save(file_path)
         
         try:
-            segments = ai_engine.analyze_video(file_path)
+            # Create proxy for uploaded file
+            proxy_path = video_processor.get_ai_proxy(file_path)
+            
+            segments = ai_engine.analyze_video(proxy_path)
             descriptions = [seg.description for seg in segments]
-            embeddings = [ai_engine.get_embedding(desc) for desc in descriptions]
+            embeddings = ai_engine.get_embeddings(descriptions)
             
             storage_service.add_segments(segments, embeddings, file_path)
+
+            # Cleanup proxy
+            if proxy_path != file_path and os.path.exists(proxy_path):
+                os.remove(proxy_path)
             
             return jsonify({'message': 'Video uploaded and processed successfully', 'filename': file_path}), 200
         except Exception as e:
