@@ -7,7 +7,7 @@ A modern, local-first stack for indexing and searching video content using AI. T
 - **Semantic Video Search**: Find moments in videos using natural language (e.g., "Where does he talk about the iPhone launch?").
 - **Local-First Vector Store**: Uses **ChromaDB** for local vector storage—no external database subscription required.
 - **Local Embeddings**: Generates embeddings locally using `sentence-transformers` (`all-MiniLM-L6-v2`).
-- **Gemini 2.0 Integration**: Utilizes the latest `google-genai` SDK for high-accuracy structured video analysis.
+- **Gemini Integration**: Utilizes the latest `google-genai` SDK for high-accuracy structured video analysis.
 - **Instant Clipping**: High-speed video clipping using **FFmpeg** with re-encoding for accurate seeking.
 - **Modern Tooling**: Powered by **uv** for ultra-fast Python dependency management.
 
