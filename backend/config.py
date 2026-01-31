@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field
 
 # --- Constants ---
@@ -19,6 +19,7 @@ class VideoSegment(BaseModel):
     end_time: str = Field(description="End time of the segment in MM:SS format")
     description: str = Field(description="Detailed description of what happens in this segment")
     key_elements: List[str] = Field(description="List of key objects, people, or concepts in the segment")
+    thumbnail: Optional[str] = Field(default="", description="Base64 encoded thumbnail image")
 
 class VideoAnalysis(BaseModel):
     segments: List[VideoSegment]

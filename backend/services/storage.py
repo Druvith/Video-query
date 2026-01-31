@@ -38,7 +38,8 @@ class StorageService:
                 "start_time": seg.start_time,
                 "end_time": seg.end_time,
                 "key_elements": ", ".join(seg.key_elements),
-                "video_filename": video_filename
+                "video_filename": video_filename,
+                "thumbnail": seg.thumbnail
             }
             for seg in segments
         ]
@@ -50,8 +51,6 @@ class StorageService:
             metadatas=metadatas
         )
         logger.info(f"Added {len(segments)} segments to index.")
-        if metadatas:
-             logger.info(f"Sample metadata being added: {metadatas[0]}")
 
     def query(self, query_embedding, n_results=5):
         """
@@ -66,12 +65,13 @@ class StorageService:
         if results['ids'] and len(results['ids'][0]) > 0:
             for i in range(len(results['ids'][0])):
                 meta = results['metadatas'][0][i]
-                logger.info(f"Retrieved metadata for result {i}: {meta}")
                 formatted_results.append({
                     'id': results['ids'][0][i],
                     'description': results['documents'][0][i],
                     'start_time': meta['start_time'],
                     'end_time': meta['end_time'],
+                    'keywords': meta.get('key_elements', '').split(', '),
+                    'thumbnail': meta.get('thumbnail', ''),
                     'filename': meta.get('video_filename'),
                     'score': 1 - results['distances'][0][i] if 'distances' in results else 0
                 })

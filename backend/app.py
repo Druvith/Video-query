@@ -45,6 +45,10 @@ def process_video():
     if not ai_engine:
         return jsonify({'error': 'Server misconfiguration: AI Engine not loaded'}), 500
 
+    # 0. Garbage Collect old files and DB
+    video_processor.clear_temp_folders()
+    storage_service.clear_index()
+
     data = request.json
     if not data or 'url' not in data:
         return jsonify({'error': 'No URL provided'}), 400
@@ -62,7 +66,12 @@ def process_video():
         if not segments:
              return jsonify({'error': 'AI analysis yielded no segments'}), 500
 
-        # 4. Batch generate embeddings
+        # 4. Extract Thumbnails for each segment
+        for seg in segments:
+            # Extract at the start of the segment
+            seg.thumbnail = video_processor.extract_thumbnail(filename, seg.start_time)
+
+        # 5. Batch generate embeddings
         descriptions = [seg.description for seg in segments]
         embeddings = ai_engine.get_embeddings(descriptions)
 
@@ -84,6 +93,10 @@ def upload_video():
     if not ai_engine:
         return jsonify({'error': 'Server misconfiguration: AI Engine not loaded'}), 500
 
+    # 0. Garbage Collect old files and DB
+    video_processor.clear_temp_folders()
+    storage_service.clear_index()
+
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     
@@ -101,6 +114,11 @@ def upload_video():
             proxy_path = video_processor.get_ai_proxy(file_path)
             
             segments = ai_engine.analyze_video(proxy_path)
+            
+            # Extract Thumbnails
+            for seg in segments:
+                seg.thumbnail = video_processor.extract_thumbnail(file_path, seg.start_time)
+
             descriptions = [seg.description for seg in segments]
             embeddings = ai_engine.get_embeddings(descriptions)
             
@@ -161,7 +179,10 @@ def clip_video():
 
 @app.route('/clips/<filename>')
 def serve_clip(filename):
-    return send_file(os.path.join(app.config['CLIP_FOLDER'], filename))
+    path = os.path.join(app.config['CLIP_FOLDER'], filename)
+    if not os.path.exists(path):
+        return jsonify({'error': 'Clip not found'}), 404
+    return send_file(path, mimetype='video/mp4', conditional=True)
 
 @app.route('/delete-index', methods=['POST'])
 def delete_index():

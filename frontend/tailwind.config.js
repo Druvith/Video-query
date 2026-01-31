@@ -1,33 +1,42 @@
 // tailwind.config.js
 module.exports = {
-  darkMode: 'class', // Enable dark mode using the 'class' strategy
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "./public/index.html",
   ],
   theme: {
     extend: {
-      // iOS-Inspired Font Family
-      fontFamily: {
-        'ios': ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-      },
-      // Customize Colors
       colors: {
-        'primary': '#1E293B',      // Dark Blue (Tailwind Gray-800)
-        'secondary': '#F9FAFB',    // Light Gray (Tailwind Gray-50)
-        'accent': '#14B8A6',       // Teal-500
-        'text-primary': '#FFFFFF', // White for text in dark mode
-        'text-secondary': '#D1D5DB', // Tailwind Gray-300 for secondary text
+        'canvas': '#FDFBF7',
+        'panel': '#F4F1EA',
+        'overlay': 'rgba(44, 36, 27, 0.85)',
+        'text-main': '#2C241B',
+        'text-muted': '#6B5E51',
+        'border-subtle': '#D8D0C5',
+        'border-focus': '#C05640',
+        'accent-primary': '#C05640',
+        'accent-primary-hover': '#A0402C',
+        'accent-secondary': '#4A6C6F',
+        'accent-success': '#5D7052',
       },
-      // Background Animation (Twinkling Stars)
-      keyframes: {
-        twinkling: {
-          '0%, 100%': { opacity: 0.5 },
-          '50%': { opacity: 1 },
-        },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+      },
+      boxShadow: {
+        'card': '0 4px 20px rgba(44, 36, 27, 0.06)',
+        'hover': '0 8px 30px rgba(44, 36, 27, 0.12)',
       },
       animation: {
-        twinkling: 'twinkling 2s infinite',
+        'spin-slow': 'spin 3s linear infinite',
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },

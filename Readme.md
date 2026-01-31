@@ -1,79 +1,62 @@
-# Video Query - AI-Powered Video Semantic Search
+# Video Query
 
-A modern, local-first stack for indexing and searching video content using AI. This application allows you to process YouTube videos or local uploads, generate semantic descriptions using Gemini, and perform natural language queries to find and play specific moments.
+A local-first application for semantic video search and discovery. Index videos via YouTube URL or local upload and perform natural language queries to find, play, and download specific moments.
 
-## Key Features
+## Features
 
-- **Semantic Video Search**: Find moments in videos using natural language (e.g., "Where does he talk about the iPhone launch?").
-- **Local-First Vector Store**: Uses **ChromaDB** for local vector storage—no external database subscription required.
-- **Local Embeddings**: Generates embeddings locally using `sentence-transformers` (`all-MiniLM-L6-v2`).
-- **Gemini Integration**: Utilizes the latest `google-genai` SDK for high-accuracy structured video analysis.
-- **Instant Clipping**: High-speed video clipping using **FFmpeg** with re-encoding for accurate seeking.
-- **Modern Tooling**: Powered by **uv** for ultra-fast Python dependency management.
+- **Semantic Search**: Query video content using natural language (e.g., "Where is the battery replaced?").
+- **Local Vector Storage**: Uses ChromaDB for local indexing and storage.
+- **Hardware Acceleration**: Optimized with hardware-accelerated transcoding (h264_videotoolbox) for near-instant clipping.
+- **Progress Tracking**: Real-time feedback during the multi-stage indexing process.
+- **Segment Downloads**: Export any discovered video segment directly to your disk.
+- **Automated Cleanup**: Automatically purges temporary files and resets indices before new video ingestion.
 
 ## Prerequisites
 
 - **Python 3.10+**
-- **FFmpeg**: Required for video processing and clipping.
-- **uv**: Recommended for package management ([Install uv](https://github.com/astral-sh/uv)).
-- **Node.js & npm**: Required for the frontend.
-- **Google AI API Key**: Get one for free at [Google AI Studio](https://aistudio.google.com/app/apikey).
+- **FFmpeg**
+- **uv** (Recommended for dependency management)
+- **Node.js & npm**
+- **Google AI API Key** (Set in `backend/.env` as `GOOGLE_API_KEY`)
 
-## Getting Started
+## Installation & Usage
 
-### 1. Clone the repository
+The project includes a `Makefile` for simplified orchestration.
+
+### 1. Initial Setup
+This will configure the Python environment and install frontend dependencies.
 ```bash
-git clone https://github.com/Druvith/video-query.git
-cd video-query
+make setup
 ```
 
-### 2. Backend Setup
+### 2. Set API Key
+Create a `.env` file in the `backend/` directory:
 ```bash
-cd backend
-
-# Setup environment and install dependencies using uv
-chmod +x setup_env.sh
-./setup_env.sh
-
-# Set your API Key
-echo "GOOGLE_API_KEY=your_key_here" > .env
-
-# Run the server
-source .venv/bin/activate
-python app.py
+echo "GOOGLE_API_KEY=your_key_here" > backend/.env
 ```
-The backend will run at `http://localhost:5000`.
 
-### 3. Frontend Setup
+### 3. Run Application
+Launches both the Backend and Frontend in a single terminal.
 ```bash
-cd frontend
-npm install
-npm start
+make dev
 ```
-The frontend will run at `http://localhost:3000`.
+Press `Ctrl+C` to stop both servers.
 
-## How it Works
+## API Reference
 
-1. **Ingestion**: Videos are downloaded via `yt-dlp` or uploaded manually.
-2. **Analysis**: Gemini analyzes the video and returns structured JSON containing segment timestamps and descriptions.
-3. **Indexing**: Descriptions are converted into 384-dimensional vectors using `all-MiniLM-L6-v2` and stored in a local **ChromaDB** instance (`backend/video_index_db`).
-4. **Search**: User queries are embedded locally and compared against the vector store using cosine similarity.
-5. **Playback**: When a result is selected, FFmpeg creates a precise clip on-the-fly for instant playback.
-
-## Backend API
-
-- `POST /process`: Index a YouTube video by URL.
-- `POST /upload`: Index a local MP4 file.
-- `POST /query`: Search the index using natural language.
-- `POST /clip`: Generate a specific video segment.
-- `POST /delete-index`: Wipe the local vector store.
+- `POST /process`: Index a YouTube video via URL.
+- `POST /upload`: Index a local video file.
+- `POST /query`: Search the current index.
+- `POST /clip`: Generate a video segment.
+- `POST /delete-index`: Clear the local store.
 
 ## Tech Stack
 
+- **AI**: Gemini (Analysis), sentence-transformers (Local Embeddings).
+- **Database**: ChromaDB.
+- **Media**: FFmpeg, yt-dlp.
 - **Frontend**: React, Tailwind CSS.
-- **Backend**: Flask, `uv`.
-- **AI/ML**: `google-genai`, `sentence-transformers`, `chromadb`.
-- **Media**: `ffmpeg`, `yt-dlp`.
+- **Backend**: Flask.
 
 ## License
 MIT
