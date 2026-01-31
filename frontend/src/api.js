@@ -7,6 +7,17 @@ export const processVideo = async (url) => {
   return response.data;
 };
 
+export const uploadVideo = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 export const queryVideo = async (query) => {
   const response = await axios.post(`${API_BASE_URL}/query`, { query });
   return response.data;
