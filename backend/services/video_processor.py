@@ -65,10 +65,12 @@ class VideoProcessor:
                 except Exception as e:
                     logger.error(f'Failed to delete {file_path}. Reason: {e}')
 
-    def download_video(self, url):
+    def download_video(self, url, output_dir=None):
         """Downloads a video from YouTube (Highest Quality)."""
+        target_dir = output_dir or self.upload_folder
+        os.makedirs(target_dir, exist_ok=True)
         ydl_opts = {
-            'outtmpl': os.path.join(self.upload_folder, '%(title)s.%(ext)s'),
+            'outtmpl': os.path.join(target_dir, '%(title)s.%(ext)s'),
             # Download best quality
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'restrictfilenames': True,
@@ -89,7 +91,7 @@ class VideoProcessor:
         """Creates a low-res (480p) proxy of a video for faster AI upload."""
         filename = os.path.basename(input_path)
         proxy_filename = f"proxy_480p_{filename}"
-        proxy_path = os.path.join(self.upload_folder, proxy_filename)
+        proxy_path = os.path.join(os.path.dirname(os.path.abspath(input_path)), proxy_filename)
 
         if os.path.exists(proxy_path):
             return proxy_path
@@ -135,12 +137,14 @@ class VideoProcessor:
     def create_clip(self, input_path, start_time, end_time):
         """Creates a video clip using ffmpeg."""
         filename = os.path.basename(input_path)
+        source_scope = os.path.basename(os.path.dirname(os.path.abspath(input_path))) or "video"
+        safe_scope = source_scope.replace(' ', '_')
         # Create a safe name for the clip
         safe_start = start_time.replace(':', '-')
         safe_end = end_time.replace(':', '-')
         # Ensure filename is safe (replace spaces)
         safe_filename = filename.replace(' ', '_')
-        output_filename = f"clip_{safe_start}_{safe_end}_{safe_filename}"
+        output_filename = f"clip_{safe_scope}_{safe_start}_{safe_end}_{safe_filename}"
         output_path = os.path.join(self.clip_folder, output_filename)
 
         if os.path.exists(output_path) and os.path.getsize(output_path) > 0:

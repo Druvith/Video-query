@@ -1,6 +1,21 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000';
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
+
+export const getProjects = async () => {
+  const response = await axios.get(`${API_BASE_URL}/projects`);
+  return response.data;
+};
+
+export const getProject = async (projectId) => {
+  const response = await axios.get(`${API_BASE_URL}/projects/${projectId}`);
+  return response.data;
+};
+
+export const deleteProject = async (projectId) => {
+  const response = await axios.delete(`${API_BASE_URL}/projects/${projectId}`);
+  return response.data;
+};
 
 export const processVideo = async (url) => {
   const response = await axios.post(`${API_BASE_URL}/process`, { url });
@@ -18,17 +33,12 @@ export const uploadVideo = async (file) => {
   return response.data;
 };
 
-export const queryVideo = async (query) => {
-  const response = await axios.post(`${API_BASE_URL}/query`, { query });
+export const queryVideo = async (projectId, query) => {
+  const response = await axios.post(`${API_BASE_URL}/query`, { project_id: projectId, query });
   return response.data;
 };
 
-export const createClip = async (filename, startTime, endTime) => {
-  const response = await axios.post(`${API_BASE_URL}/clip`, { filename, start_time: startTime, end_time: endTime });
-  return response.data;
-};
-
-export const deleteIndex = async () => {
-  const response = await axios.post(`${API_BASE_URL}/delete-index`);
+export const createClip = async (projectId, startTime, endTime) => {
+  const response = await axios.post(`${API_BASE_URL}/clip`, { project_id: projectId, start_time: startTime, end_time: endTime });
   return response.data;
 };
