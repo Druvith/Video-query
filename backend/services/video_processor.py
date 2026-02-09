@@ -101,7 +101,7 @@ class VideoProcessor:
             'ffmpeg',
             '-y',
             '-i', input_path,
-            '-vf', 'scale=-2:480',
+            '-vf', 'scale=-2:360',
             '-c:v', encoder,
         ]
         
