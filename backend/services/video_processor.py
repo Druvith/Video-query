@@ -5,7 +5,7 @@ import yt_dlp
 import logging
 import platform
 import shutil
-from config import UPLOAD_FOLDER, CLIP_FOLDER
+from config import UPLOAD_FOLDER, CLIP_FOLDER, AI_PROXY_MIN_SOURCE_MB
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +89,16 @@ class VideoProcessor:
 
     def get_ai_proxy(self, input_path):
         """Creates a low-res (480p) proxy of a video for faster AI upload."""
+        source_size_mb = (os.path.getsize(input_path) / (1024 * 1024)) if os.path.exists(input_path) else 0
+        if source_size_mb < AI_PROXY_MIN_SOURCE_MB:
+            logger.info(
+                "Skipping proxy generation for small file (%.2fMB < %.2fMB): %s",
+                source_size_mb,
+                AI_PROXY_MIN_SOURCE_MB,
+                input_path
+            )
+            return input_path
+
         filename = os.path.basename(input_path)
         proxy_filename = f"proxy_480p_{filename}"
         proxy_path = os.path.join(os.path.dirname(os.path.abspath(input_path)), proxy_filename)
