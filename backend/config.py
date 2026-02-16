@@ -9,9 +9,12 @@ DB_PATH = os.getenv('DB_PATH', './video_index_db')
 ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'webm'}
 
 # --- Model Configurations ---
-GENAI_MODEL_NAME = "gemini-3-flash-preview"
+GENAI_MODEL_NAME = "gemini-flash-lite-latest"
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 EMBEDDING_DIMENSION = 384 
+
+# Skip proxy generation for small files where transcode overhead is not worth it.
+AI_PROXY_MIN_SOURCE_MB = float(os.getenv('AI_PROXY_MIN_SOURCE_MB', '30'))
 
 # --- Structured Output Schemas ---
 class VideoSegment(BaseModel):

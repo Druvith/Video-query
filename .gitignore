@@ -18,6 +18,7 @@ backend/uploads/*
 backend/clips/*
 !backend/clips/.gitkeep
 backend/video_index_db/
+video_index_db/
 .DS_Store
 
 # Frontend
@@ -32,4 +33,4 @@ yarn-debug.log*
 yarn-error.log*
 
 tmp/
-*.log 
+*.log

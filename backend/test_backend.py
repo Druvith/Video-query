@@ -1,7 +1,8 @@
 import requests
 import time
+import os
 
-BASE_URL = 'http://127.0.0.1:5000'
+BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5001')
 
 def test_workflow():
     print("1. Testing Video Processing...")
@@ -15,22 +16,25 @@ def test_workflow():
         print("Processing failed, aborting.")
         return
 
-    filename = response.json().get('filename')
+    payload = response.json()
+    filename = payload.get('filename')
+    project_id = payload.get('project_id')
     print(f"\nVideo processed: {filename}")
+    print(f"Project ID: {project_id}")
 
     print("\n2. Testing Query...")
-    query_resp = requests.post(f"{BASE_URL}/query", json={'query': 'zoo'})
+    query_resp = requests.post(f"{BASE_URL}/query", json={'project_id': project_id, 'query': 'zoo'})
     print(f"Status: {query_resp.status_code}")
     results = query_resp.json()
     print(f"Results: {len(results)}")
     if results:
         print(f"Top result: {results[0]}")
 
-    if results and filename:
+    if results and project_id:
         print("\n3. Testing Clip...")
         top_res = results[0]
         clip_req = {
-            'filename': filename,
+            'project_id': project_id,
             'start_time': top_res['start_time'],
             'end_time': top_res['end_time']
         }
