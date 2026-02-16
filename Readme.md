@@ -2,6 +2,10 @@
 
 A local-first application for semantic video search and discovery. Index videos via YouTube URL or local upload and perform natural language queries to find, play, and download specific moments.
 
+## Demo
+
+![Video Query Demo](demo-video-query-small.gif)
+
 ## Features
 
 - **Semantic Search**: Query video content using natural language (e.g., "Where is the battery replaced?").
@@ -10,6 +14,14 @@ A local-first application for semantic video search and discovery. Index videos 
 - **Progress Tracking**: Real-time feedback during the multi-stage indexing process.
 - **Segment Downloads**: Export any discovered video segment directly to your disk.
 - **Project-Based Library**: Each ingestion creates its own project index so previously indexed videos are preserved.
+
+## How It Works
+
+1. Ingest a video from YouTube (`/process`) or local upload (`/upload`).
+2. Backend creates a new `project_id` and analyzes the video into semantic segments.
+3. Segment descriptions are embedded and indexed in a project-scoped ChromaDB collection.
+4. Queries (`/query`) search only within the selected project using semantic similarity.
+5. Matching time ranges can be clipped and downloaded via `/clip`.
 
 ## Prerequisites
 
