@@ -20,8 +20,7 @@ const ProjectList = () => {
 
   useEffect(() => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    const fileRegex = /\.(mp4|mov|avi|webm)$/i;
-    setIsValidUrl(youtubeRegex.test(videoUrl) || fileRegex.test(videoUrl));
+    setIsValidUrl(youtubeRegex.test(videoUrl.trim()));
   }, [videoUrl]);
 
   const fetchProjects = async () => {
@@ -36,10 +35,11 @@ const ProjectList = () => {
   };
 
   const handleProcessUrl = async () => {
-    if (!isValidUrl) return;
+    const trimmedUrl = videoUrl.trim();
+    if (!trimmedUrl || !isValidUrl) return;
     setProcessing(true);
     try {
-      const res = await processVideo(videoUrl);
+      const res = await processVideo(trimmedUrl);
       navigate(`/project/${res.project_id}`);
     } catch (error) {
       console.error(error);
@@ -117,6 +117,11 @@ const ProjectList = () => {
                     Index
                 </button>
             </div>
+            {videoUrl.trim() && !isValidUrl && (
+                <p className="mt-3 text-xs text-red-300">
+                    Enter a valid YouTube URL. For local files, use the upload option below.
+                </p>
+            )}
             <div className="mt-8 text-sm text-text-muted relative z-10">
                 <button onClick={() => fileInputRef.current?.click()} className="group/upload relative inline-flex items-center gap-2 hover:text-text-main transition-colors">
                     <span className="w-8 h-8 rounded-full bg-surface/50 flex items-center justify-center group-hover/upload:bg-accent-primary group-hover/upload:text-white transition-all">

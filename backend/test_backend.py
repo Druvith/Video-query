@@ -1,10 +1,17 @@
 import requests
-import time
 import os
+import pytest
 
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:5001')
 
+def require_integration_opt_in():
+    if os.getenv('RUN_BACKEND_INTEGRATION') != '1':
+        pytest.skip(
+            "Integration test skipped. Set RUN_BACKEND_INTEGRATION=1 and run with a live backend."
+        )
+
 def test_workflow():
+    require_integration_opt_in()
     print("1. Testing Video Processing...")
     # Use a short video for testing
     url = "https://www.youtube.com/watch?v=jNQXAC9IVRw" # "Me at the zoo" - very short

@@ -9,7 +9,7 @@ A local-first application for semantic video search and discovery. Index videos 
 - **Hardware Acceleration**: Optimized with hardware-accelerated transcoding (h264_videotoolbox) for near-instant clipping.
 - **Progress Tracking**: Real-time feedback during the multi-stage indexing process.
 - **Segment Downloads**: Export any discovered video segment directly to your disk.
-- **Automated Cleanup**: Automatically purges temporary files and resets indices before new video ingestion.
+- **Project-Based Library**: Each ingestion creates its own project index so previously indexed videos are preserved.
 
 ## Prerequisites
 
@@ -46,9 +46,11 @@ Press `Ctrl+C` to stop both servers.
 
 - `POST /process`: Index a YouTube video via URL.
 - `POST /upload`: Index a local video file.
-- `POST /query`: Search the current index.
-- `POST /clip`: Generate a video segment.
-- `POST /delete-index`: Clear the local store.
+- `POST /query`: Search within a project index (requires `project_id` and `query`).
+- `POST /clip`: Generate a segment from a project video (requires `project_id`, `start_time`, `end_time`).
+- `GET /projects`: List indexed projects.
+- `GET /projects/{project_id}`: Get project metadata.
+- `DELETE /projects/{project_id}`: Delete a project and its indexed data.
 
 ## Tech Stack
 

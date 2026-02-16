@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../layout/Header';
 import { IconSearch, IconPlay, IconClose, IconDownloadSegment } from '../icons/Icons';
@@ -14,29 +14,54 @@ const getPrimaryKeyword = (segment) => {
 const ProjectDetail = () => {
     const { id } = useParams();
     const [project, setProject] = useState(null);
+    const [projectLoading, setProjectLoading] = useState(true);
+    const [projectError, setProjectError] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [results, setResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [searchError, setSearchError] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
     const [clipUrl, setClipUrl] = useState(null);
     const [currentSegment, setCurrentSegment] = useState(null);
     const searchInputRef = useRef(null);
 
-    useEffect(() => {
-        getProject(id).then(setProject).catch(console.error);
+    const loadProject = useCallback(async () => {
+        setProjectLoading(true);
+        setProjectError('');
+        try {
+            const data = await getProject(id);
+            setProject(data);
+        } catch (error) {
+            console.error(error);
+            setProject(null);
+            setProjectError(error.response?.data?.error || 'Could not load this project.');
+        } finally {
+            setProjectLoading(false);
+        }
     }, [id]);
+
+    useEffect(() => {
+        loadProject();
+    }, [loadProject]);
+
+    const runQuery = async (queryText) => {
+        setIsSearching(true);
+        setSearchError('');
+        try {
+            const data = await queryVideo(id, queryText);
+            setResults(data);
+        } catch (error) {
+            console.error(error);
+            setResults([]);
+            setSearchError(error.response?.data?.error || 'Search failed. Try again.');
+        } finally {
+            setIsSearching(false);
+        }
+    };
 
     const handleSearch = async (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
-          setIsSearching(true);
-          try {
-            const data = await queryVideo(id, searchQuery);
-            setResults(data);
-          } catch (error) {
-            console.error(error);
-          } finally {
-            setIsSearching(false);
-          }
+            runQuery(searchQuery.trim());
         }
     };
 
@@ -77,7 +102,29 @@ const ProjectDetail = () => {
         ? [...new Set(results.flatMap(r => r.keywords || []))].slice(0, 5).map(k => `Show me ${k.toLowerCase()}`)
         : [];
 
-    if (!project) return <div className="flex items-center justify-center min-h-screen text-text-muted font-mono animate-pulse">Loading project...</div>;
+    if (projectLoading) return <div className="flex items-center justify-center min-h-screen text-text-muted font-mono animate-pulse">Loading project...</div>;
+
+    if (projectError) {
+        return (
+            <div className="flex flex-col min-h-screen bg-canvas">
+                <Header showBack />
+                <main className="container mx-auto px-6 py-12 max-w-3xl flex-1 flex items-center justify-center">
+                    <div className="w-full bg-panel border border-red-500/30 rounded-xl p-8 text-center">
+                        <h2 className="font-serif text-2xl text-text-main mb-3">Couldn&apos;t load project</h2>
+                        <p className="text-sm text-red-300 mb-6">{projectError}</p>
+                        <button
+                            onClick={loadProject}
+                            className="px-6 py-2 rounded-lg bg-text-main text-canvas hover:bg-accent-primary hover:text-white transition-colors"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
+    if (!project) return <div className="flex items-center justify-center min-h-screen text-text-muted font-mono">Project not found.</div>;
 
     return (
         <div className="flex flex-col min-h-screen bg-canvas">
@@ -99,13 +146,19 @@ const ProjectDetail = () => {
                         <div className="mt-4 flex flex-wrap justify-center gap-2 animate-fade-in max-w-4xl mx-auto">
                             {suggestedQueries.map((q, i) => (
                                 <button
-                                    key={i} onClick={() => { setSearchQuery(q); (async () => { setIsSearching(true); try { const data = await queryVideo(id, q); setResults(data); } catch (e) { console.error(e); } finally { setIsSearching(false); } })(); }}
+                                    key={i} onClick={() => { setSearchQuery(q); runQuery(q); }}
                                     className="text-xs font-mono px-4 py-2 rounded-full border border-border-subtle/80 text-text-main bg-panel shadow-card hover:border-accent-primary hover:text-accent-primary hover:shadow-hover transition-all duration-300"
                                 >{q}</button>
                             ))}
                         </div>
                     )}
                 </div>
+
+                {searchError && !isSearching && (
+                    <div className="mb-6 px-4 py-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 text-sm">
+                        {searchError}
+                    </div>
+                )}
 
                 {isSearching && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20 animate-fade-in">

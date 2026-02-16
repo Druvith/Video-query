@@ -31,12 +31,15 @@ app.config['CLIP_FOLDER'] = CLIP_FOLDER
 # Initialize Services
 video_processor = VideoProcessor()
 try:
-    ai_engine = AIEngine()
     storage_service = StorageService()
 except Exception as e:
-    logger.error(f"Failed to initialize services: {e}")
-    ai_engine = None
+    logger.error(f"Failed to initialize storage service: {e}")
     storage_service = None
+try:
+    ai_engine = AIEngine()
+except Exception as e:
+    logger.error(f"Failed to initialize AI engine: {e}")
+    ai_engine = None
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -103,10 +106,14 @@ def cleanup_project_media(project_id, project):
 
 @app.route('/projects', methods=['GET'])
 def list_projects():
+    if not storage_service:
+        return jsonify({'error': 'Server misconfiguration: Storage service not loaded'}), 500
     return jsonify(storage_service.list_projects()), 200
 
 @app.route('/projects/<project_id>', methods=['GET'])
 def get_project(project_id):
+    if not storage_service:
+        return jsonify({'error': 'Server misconfiguration: Storage service not loaded'}), 500
     project = storage_service.get_project(project_id)
     if not project:
         return jsonify({'error': 'Project not found'}), 404
@@ -114,6 +121,8 @@ def get_project(project_id):
 
 @app.route('/projects/<project_id>', methods=['DELETE'])
 def delete_project(project_id):
+    if not storage_service:
+        return jsonify({'error': 'Server misconfiguration: Storage service not loaded'}), 500
     project = storage_service.get_project(project_id)
     if not project:
         return jsonify({'error': 'Project not found'}), 404
@@ -126,6 +135,8 @@ def delete_project(project_id):
 def process_video():
     if not ai_engine:
         return jsonify({'error': 'Server misconfiguration: AI Engine not loaded'}), 500
+    if not storage_service:
+        return jsonify({'error': 'Server misconfiguration: Storage service not loaded'}), 500
 
     data = request.json
     if not data or 'url' not in data:
@@ -185,6 +196,8 @@ def process_video():
 def upload_video():
     if not ai_engine:
         return jsonify({'error': 'Server misconfiguration: AI Engine not loaded'}), 500
+    if not storage_service:
+        return jsonify({'error': 'Server misconfiguration: Storage service not loaded'}), 500
 
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
@@ -241,6 +254,8 @@ def upload_video():
 def query_video():
     if not ai_engine:
          return jsonify({'error': 'Server misconfiguration: AI Engine not loaded'}), 500
+    if not storage_service:
+         return jsonify({'error': 'Server misconfiguration: Storage service not loaded'}), 500
 
     data = request.json or {}
     if 'query' not in data:
@@ -264,6 +279,8 @@ def query_video():
 
 @app.route('/clip', methods=['POST'])
 def clip_video():
+    if not storage_service:
+        return jsonify({'error': 'Server misconfiguration: Storage service not loaded'}), 500
     data = request.json or {}
     required = ['project_id', 'start_time', 'end_time']
     if not all(k in data for k in required):

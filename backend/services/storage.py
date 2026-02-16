@@ -3,7 +3,6 @@ import logging
 import uuid
 import json
 import os
-import time
 from datetime import datetime
 from config import DB_PATH
 
